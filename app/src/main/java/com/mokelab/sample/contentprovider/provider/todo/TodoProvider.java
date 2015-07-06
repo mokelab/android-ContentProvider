@@ -26,8 +26,13 @@ public class TodoProvider extends ContentProvider {
         sUriMatcher.addURI(AUTHORITY, "users/*/todos/#", URITYPE_TODO);
     }
 
+    private TodoDB mTodoDB;
+    private TodoDAO mTodoDAO;
+
     @Override
     public boolean onCreate() {
+        mTodoDB = new TodoDB(getContext());
+        mTodoDAO = new TodoDAO(mTodoDB);
         return true;
     }
 
@@ -43,6 +48,10 @@ public class TodoProvider extends ContentProvider {
 
     @Override
     public Uri insert(Uri uri, ContentValues contentValues) {
+        switch (sUriMatcher.match(uri)) {
+        case URITYPE_TODO_LIST:
+            return insertLocal(uri, contentValues);
+        }
         return null;
     }
 
@@ -54,5 +63,19 @@ public class TodoProvider extends ContentProvider {
     @Override
     public int update(Uri uri, ContentValues contentValues, String selection, String[] selectionArgs) {
         return 0;
+    }
+
+    private Uri insertLocal(Uri uri, ContentValues contentValues) {
+        // Uri = content://com.mokelab.todo.provider/users/{userId}/todos
+        // pathSegments[0] = users
+        // pathSegments[1] = {userId}
+        // pathSegments[2] = todos
+        String userId = uri.getPathSegments().get(1);
+        String todo = contentValues.getAsString(TodoColumns.TODO);
+
+        long id = mTodoDAO.insert(userId, "", System.currentTimeMillis(), 0, todo);
+        if (id == -1) { return null; }
+
+        return Uri.parse("content://" + AUTHORITY + "/users/" + userId + "/todos/" + id);
     }
 }
