@@ -1,4 +1,4 @@
-package com.mokelab.contentprovidersample;
+package com.mokelab.sample.contentprovider;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;
