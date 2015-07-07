@@ -19,6 +19,7 @@ class TodoDB extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         // execute create table statement
+        TodoDAO.createTable(db);
     }
 
     @Override
