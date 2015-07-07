@@ -80,6 +80,10 @@ public class TodoProvider extends ContentProvider {
         long id = mTodoDAO.insert(userId, "", System.currentTimeMillis(), 0, todo);
         if (id == -1) { return null; }
 
+        // notify update
+        Uri notifyUri = Uri.parse("content://" + AUTHORITY + "/users/" + userId + "/todos");
+        getContext().getContentResolver().notifyChange(notifyUri, null);
+
         return Uri.parse("content://" + AUTHORITY + "/users/" + userId + "/todos/" + id);
     }
 
@@ -90,6 +94,7 @@ public class TodoProvider extends ContentProvider {
         // pathSegments[2] = todos
         String userId = uri.getPathSegments().get(1);
         Cursor cursor = mTodoDAO.query(userId, projection, selection, selectionArgs, sortOrder);
+        cursor.setNotificationUri(getContext().getContentResolver(), uri);
         return cursor;
     }
 }
