@@ -38,6 +38,10 @@ public class TodoProvider extends ContentProvider {
 
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+        switch (sUriMatcher.match(uri)) {
+        case URITYPE_TODO_LIST:
+            return queryTodoList(uri, projection, selection, selectionArgs, sortOrder);
+        }
         return null;
     }
 
@@ -77,5 +81,15 @@ public class TodoProvider extends ContentProvider {
         if (id == -1) { return null; }
 
         return Uri.parse("content://" + AUTHORITY + "/users/" + userId + "/todos/" + id);
+    }
+
+    private Cursor queryTodoList(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+        // Uri = content://com.mokelab.todo.provider/users/{userId}/todos
+        // pathSegments[0] = users
+        // pathSegments[1] = {userId}
+        // pathSegments[2] = todos
+        String userId = uri.getPathSegments().get(1);
+        Cursor cursor = mTodoDAO.query(userId, projection, selection, selectionArgs, sortOrder);
+        return cursor;
     }
 }
